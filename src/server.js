@@ -6,8 +6,13 @@ const express = require('express');
 const cors = require('cors');
 const routes = require('./routes');
 const config = require('./config');
+const html = require('./html');
 
 const app = express();
+
+app.get('/', (req, res) => {
+  res.end(html);
+});
 
 app.use('/accounting', cors(), routes);
 
@@ -22,6 +27,8 @@ app.listen(config.port, () => {
     `
 ---------------------------------------------------------
 [           Accounting Tools is now running.            ]
+[                                                       ]
+[            http://localhost:${config.port}             ]
 ---------------------------------------------------------
   `
   );
