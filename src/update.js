@@ -5,8 +5,8 @@ const config = require('./config');
 
 const ROOT = config.isDEV ? path.resolve(__dirname, '../dest') : config.cwd;
 
-const GIT_ENDPOINT = `https://github.com/daoquangphuong/free4talk-streaming/tree/master/dest`;
-const GIT_RAW_ENDPOINT = `https://raw.githubusercontent.com/daoquangphuong/free4talk-streaming/master/dest`;
+const GIT_ENDPOINT = `https://github.com/daoquangphuong/accounting-tools/tree/master/dest`;
+const GIT_RAW_ENDPOINT = `https://raw.githubusercontent.com/daoquangphuong/accounting-tools/master/dest`;
 
 const getCurrentVersion = async () => {
   try {
@@ -34,11 +34,11 @@ const getGitFolder = async () => {
     transformResponse: [res => res],
   });
   const fileMatches = data.match(
-    /"\/daoquangphuong\/free4talk-streaming\/blob\/master\/dest\/(.+?)"/g
+    /"\/daoquangphuong\/accounting-tools\/blob\/master\/dest\/(.+?)"/g
   );
   const files = fileMatches.map(item => {
     const match = item.match(
-      /"\/daoquangphuong\/free4talk-streaming\/blob\/master\/dest\/(.+?)"/
+      /"\/daoquangphuong\/accounting-tools\/blob\/master\/dest\/(.+?)"/
     );
     return match[1];
   });
