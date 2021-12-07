@@ -18,5 +18,5 @@ module.exports = {
   serverFile: isDEV
     ? path.resolve(__dirname, '../server.js')
     : path.resolve(CWD, 'server.js'),
-  port: 10888
+  port: 10888,
 };
