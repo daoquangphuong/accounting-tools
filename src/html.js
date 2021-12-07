@@ -5,6 +5,34 @@ module.exports = `
 <meta charset="utf-8" />
 <title>Accounting Tools</title>
 <style>
+table {
+    font-family: Arial, Helvetica, sans-serif;
+    border-collapse: collapse;
+    width: 100%;
+    background: white;
+}
+
+table td, #table th {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+
+table tr:nth-child(even){background-color: #f2f2f2;}
+
+table tr:hover {background-color: #ddd;}
+
+table th {
+  padding-top: 12px;
+  padding-bottom: 12px;
+  text-align: center;
+  background-color: #4CAF50;
+  color: white;
+}
+
+tr td:first-child {
+  word-break: break-all;
+}
+
 .app {
     padding: 50px 20px;
     text-align: center;
@@ -34,6 +62,21 @@ module.exports = `
     <div class="info">
         <div>Kho: <span id="kho-file-name"></span></div>
         <div>Kế Toán: <span id="kt-file-name"></span></div>
+    </div>
+
+    <h3>Kế Toán có mà Kho thiếu</h3>
+    <div id="kho-missing">
+
+    </div>
+
+    <h3>Kho có mà Kế Toán thiếu</h3>
+    <div id="kt-missing">
+
+    </div>
+
+    <h3>Sai Giá Trị</h3>
+    <div id="wrong">
+
     </div>
 </div>
 <script>
@@ -96,6 +139,14 @@ module.exports = `
 
     $btnCheck.addEventListener('click', async () => {
         try{
+            const $khoMissing = document.getElementById('kho-missing');
+            const $ktMissing = document.getElementById('kt-missing');
+            const $wrong = document.getElementById('wrong');
+
+            $khoMissing.innerHTML = '';
+            $ktMissing.innerHTML = '';
+            $wrong.innerHTML = '';
+
             await Promise.all(['kho', 'kt'].map(name => {
                 return myFetch('/accounting/post/upload?uploadType=' + name, {
                   method: 'POST',
@@ -105,7 +156,10 @@ module.exports = `
             const res = await myFetch('/accounting/post/compare', {
                 method: 'POST',
             })
-            console.log(res);
+            const {khoMissingTable, ktMissingTable, wrongTable} = res;
+            $khoMissing.innerHTML = khoMissingTable;
+            $ktMissing.innerHTML = ktMissingTable;
+            $wrong.innerHTML = wrongTable;
         } catch (err){
             window.alert(err.message);
         }
