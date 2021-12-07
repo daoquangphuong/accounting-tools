@@ -1,6 +1,6 @@
 {
   "name": "accounting-tools",
-  "version": "1.0.3",
+  "version": "1.0.4",
   "private": true,
   "engines": {
     "node": "12.22.7",
@@ -33,6 +33,7 @@
     "cross-env": "^7.0.3",
     "express": "^4.16.4",
     "ms": "^2.1.3",
-    "source-map-support": "^0.5.20"
+    "source-map-support": "^0.5.20",
+    "xlsx": "^0.17.4"
   }
 }
