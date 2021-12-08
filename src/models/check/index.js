@@ -5,6 +5,12 @@ const fileMap = {
 
 const normalizeKho = data => {
   return data
+    .map(i => {
+      Object.keys(i).forEach(key => {
+        i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
+      });
+      return i;
+    })
     .map(i => ({
       qc1: i.qc1 || 0,
       qc2: i.qc2 || 0,
@@ -27,6 +33,12 @@ const normalizeKho = data => {
 
 const normalizeKt = data => {
   return data
+    .map(i => {
+      Object.keys(i).forEach(key => {
+        i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
+      });
+      return i;
+    })
     .map(i => ({
       qc: i.qc || '',
       td: i.td === '-' ? 0 : i.td || 0,
@@ -108,6 +120,7 @@ const compare = async () => {
   }
   const kho = normalizeKho(fileMap.kho);
   const inKho = kho.filter(i => i.td || i.n || i.x || i.tc);
+  console.log(inKho);
   // const outKho = kho.filter(i => !(i.td || i.n || i.x || i.tc));
   const kt = normalizeKt(fileMap.kt);
   const inKt = kt.filter(i => i.td || i.n || i.x || i.tc);
