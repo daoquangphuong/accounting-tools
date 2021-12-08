@@ -120,7 +120,6 @@ const compare = async () => {
   }
   const kho = normalizeKho(fileMap.kho);
   const inKho = kho.filter(i => i.td || i.n || i.x || i.tc);
-  console.log(inKho);
   // const outKho = kho.filter(i => !(i.td || i.n || i.x || i.tc));
   const kt = normalizeKt(fileMap.kt);
   const inKt = kt.filter(i => i.td || i.n || i.x || i.tc);
