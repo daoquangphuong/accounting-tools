@@ -128,6 +128,7 @@ const compare = async () => {
   const ktMap = groupByKey(inKt);
 
   const wrongMap = {};
+  const rightMap = {};
 
   const khoMissing = Object.entries(ktMap)
     .filter(([k, v]) => {
@@ -140,6 +141,11 @@ const compare = async () => {
 
       if (hasWrong && !wrongMap[k]) {
         wrongMap[k] = {
+          kho: item,
+          kt: v,
+        };
+      } else {
+        rightMap[k] = {
           kho: item,
           kt: v,
         };
@@ -163,6 +169,11 @@ const compare = async () => {
           kho: v,
           kt: item,
         };
+      } else {
+        rightMap[k] = {
+          kho: v,
+          kt: item,
+        };
       }
 
       return false;
@@ -170,6 +181,12 @@ const compare = async () => {
     .map(([, v]) => v);
 
   const wrongTable = Object.entries(wrongMap).reduce((arr, [key, value]) => {
+    arr.push(...value.kt.items.map(i => ({ key, from: 'ke toan', ...i.full })));
+    arr.push(...value.kho.items.map(i => ({ key, from: 'kho', ...i.full })));
+    return arr;
+  }, []);
+
+  const rightTable = Object.entries(rightMap).reduce((arr, [key, value]) => {
     arr.push(...value.kt.items.map(i => ({ key, from: 'ke toan', ...i.full })));
     arr.push(...value.kho.items.map(i => ({ key, from: 'kho', ...i.full })));
     return arr;
@@ -193,6 +210,7 @@ const compare = async () => {
     khoMissingTable: renderTable(khoMissingTable),
     ktMissingTable: renderTable(ktMissingTable),
     wrongTable: renderTable(wrongTable),
+    rightTable: renderTable(rightTable),
   };
 };
 

@@ -78,6 +78,11 @@ tr td:first-child {
     <div id="wrong">
 
     </div>
+
+    <h3>Đúng Giá Trị</h3>
+    <div id="right">
+
+    </div>
 </div>
 <script>
     const $upload = document.getElementById('upload');
@@ -142,10 +147,12 @@ tr td:first-child {
             const $khoMissing = document.getElementById('kho-missing');
             const $ktMissing = document.getElementById('kt-missing');
             const $wrong = document.getElementById('wrong');
+            const $right = document.getElementById('right');
 
             $khoMissing.innerHTML = '';
             $ktMissing.innerHTML = '';
             $wrong.innerHTML = '';
+            $right.innerHTML = '';
 
             await Promise.all(['kho', 'kt'].map(name => {
                 return myFetch('/accounting/post/upload?uploadType=' + name, {
@@ -156,10 +163,11 @@ tr td:first-child {
             const res = await myFetch('/accounting/post/compare', {
                 method: 'POST',
             })
-            const {khoMissingTable, ktMissingTable, wrongTable} = res;
+            const {khoMissingTable, ktMissingTable, wrongTable, rightTable} = res;
             $khoMissing.innerHTML = khoMissingTable;
             $ktMissing.innerHTML = ktMissingTable;
             $wrong.innerHTML = wrongTable;
+            $right.innerHTML = rightTable;
         } catch (err){
             window.alert(err.message);
         }
