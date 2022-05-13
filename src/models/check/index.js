@@ -8,6 +8,10 @@ const normalizeKho = data => {
     .map(i => {
       Object.keys(i).forEach(key => {
         i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
+        const newKey = key.trim();
+        const value = i[key];
+        delete i[key];
+        i[newKey] = value;
       });
       return i;
     })
@@ -36,6 +40,10 @@ const normalizeKt = data => {
     .map(i => {
       Object.keys(i).forEach(key => {
         i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
+        const newKey = key.trim();
+        const value = i[key];
+        delete i[key];
+        i[newKey] = value;
       });
       return i;
     })
