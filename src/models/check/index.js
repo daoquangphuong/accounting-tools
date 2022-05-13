@@ -1,3 +1,5 @@
+const font = require('../font');
+
 const fileMap = {
   kho: null,
   kt: null,
@@ -7,8 +9,9 @@ const normalizeKho = data => {
   return data
     .map(i => {
       Object.keys(i).forEach(key => {
-        i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
-        const newKey = key.trim();
+        i[key] =
+          i[key] && i[key].trim ? font.tcvn3ToUnicode(i[key]).trim() : i[key];
+        const newKey = font.tcvn3ToUnicode(key).trim();
         const value = i[key];
         delete i[key];
         i[newKey] = value;
@@ -39,8 +42,9 @@ const normalizeKt = data => {
   return data
     .map(i => {
       Object.keys(i).forEach(key => {
-        i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
-        const newKey = key.trim();
+        i[key] =
+          i[key] && i[key].trim ? font.tcvn3ToUnicode(i[key]).trim() : i[key];
+        const newKey = font.tcvn3ToUnicode(key).trim();
         const value = i[key];
         delete i[key];
         i[newKey] = value;
