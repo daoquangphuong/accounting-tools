@@ -111,6 +111,17 @@ const renderTable = data => {
   `;
 };
 
+const isEqual = (a, b) => {
+  if (a === b) {
+    return true;
+  }
+  const delta = Math.abs(a - b);
+  if (delta < 0.0000000001) {
+    return true;
+  }
+  return false;
+};
+
 const compare = async () => {
   if (!fileMap.kho) {
     throw new Error('Not found Kho Data');
@@ -137,7 +148,9 @@ const compare = async () => {
         return true;
       }
 
-      const hasWrong = ['td', 'n', 'x', 'tc'].some(n => item[n] !== v[n]);
+      const hasWrong = ['td', 'n', 'x', 'tc'].some(
+        n => !isEqual(item[n], v[n])
+      );
 
       if (hasWrong && !wrongMap[k]) {
         wrongMap[k] = {
@@ -162,7 +175,9 @@ const compare = async () => {
         return true;
       }
 
-      const hasWrong = ['td', 'n', 'x', 'tc'].some(n => item[n] !== v[n]);
+      const hasWrong = ['td', 'n', 'x', 'tc'].some(
+        n => !isEqual(item[n], v[n])
+      );
 
       if (hasWrong && !wrongMap[k]) {
         wrongMap[k] = {
