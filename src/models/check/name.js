@@ -1,6 +1,10 @@
 const font = require('../font');
 const fileMap = require('./fileMap');
 
+function round2Digits(number) {
+  return Math.round(Math.round(number * 1000) / 10) / 100;
+}
+
 const normalizeKho = data => {
   return data
     .map(i => {
@@ -9,7 +13,8 @@ const normalizeKho = data => {
         const newKey = key.trim();
         const value = i[key];
         delete i[key];
-        i[newKey] = value;
+        i[newKey] =
+          typeof value === 'number' && value ? round2Digits(value) : value;
       });
       return i;
     })
@@ -38,7 +43,8 @@ const normalizeKt = data => {
         const newKey = font.tcvn3ToUnicode(key).trim();
         const value = i[key];
         delete i[key];
-        i[newKey] = value;
+        i[newKey] =
+          typeof value === 'number' && value ? round2Digits(value) : value;
       });
       return i;
     })
