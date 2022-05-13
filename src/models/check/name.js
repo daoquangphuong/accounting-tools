@@ -5,9 +5,8 @@ const normalizeKho = data => {
   return data
     .map(i => {
       Object.keys(i).forEach(key => {
-        i[key] =
-          i[key] && i[key].trim ? font.tcvn3ToUnicode(i[key]).trim() : i[key];
-        const newKey = font.tcvn3ToUnicode(key).trim();
+        i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
+        const newKey = key.trim();
         const value = i[key];
         delete i[key];
         i[newKey] = value;
@@ -15,7 +14,7 @@ const normalizeKho = data => {
       return i;
     })
     .map(i => ({
-      t: i.t || 0,
+      t: i.t || '',
       td: i.td === '-' ? 0 : i.td || 0,
       n: i.n === '-' ? 0 : i.n || 0,
       x: i.x === '-' ? 0 : i.x || 0,
