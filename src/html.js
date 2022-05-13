@@ -57,7 +57,8 @@ tr td:first-child {
     <input id="upload" style="display: none" type="file" accept=".xls, .xlsx"/>
     <button id="btn-kho" class="btn">Nhập Exel Kho</button>
     <button id="btn-kt" class="btn">Nhập Exel Kế Toán</button>
-    <button id="btn-check" class="btn">Hiển Thị Kết Quả</button>
+    <button id="btn-check-qc" class="btn">So sánh theo quy cách</button>
+    <button id="btn-check-name" class="btn">So sánh theo tên</button>
 
     <div class="info">
         <div>Kho: <span id="kho-file-name"></span></div>
@@ -83,7 +84,8 @@ tr td:first-child {
     const $upload = document.getElementById('upload');
     const $btnKho = document.getElementById('btn-kho');
     const $btnKt = document.getElementById('btn-kt');
-    const $btnCheck = document.getElementById('btn-check');
+    const $btnCheckQc = document.getElementById('btn-check-qc');
+    const $btnCheckName = document.getElementById('btn-check-name');
 
     const fileMap = new Object({
         kho: null,
@@ -100,7 +102,8 @@ tr td:first-child {
          if(fileMap.kt){
             $ktName.textContent = fileMap.kt.name;
         }
-        $btnCheck.disabled = !(fileMap.kho && fileMap.kt);
+        $btnCheckQc.disabled = !(fileMap.kho && fileMap.kt);
+        $btnCheckName.disabled = !(fileMap.kho && fileMap.kt);
     }
 
     $upload.addEventListener('change', (event) => {
@@ -137,7 +140,7 @@ tr td:first-child {
         return jsonData.data;
     }
 
-    $btnCheck.addEventListener('click', async () => {
+    const handleCheck = async (type = 'qc') => {
         try{
             const $khoMissing = document.getElementById('kho-missing');
             const $ktMissing = document.getElementById('kt-missing');
@@ -153,7 +156,7 @@ tr td:first-child {
                   body: fileMap[name],
                 })
             }));
-            const res = await myFetch('/accounting/post/compare', {
+            const res = await myFetch('/accounting/post/compare?compareType=' + type, {
                 method: 'POST',
             })
             const {khoMissingTable, ktMissingTable, wrongTable} = res;
@@ -163,6 +166,14 @@ tr td:first-child {
         } catch (err){
             window.alert(err.message);
         }
+    }
+
+    $btnCheckQc.addEventListener('click', () => {
+        handleCheck('qc')
+    })
+
+    $btnCheckName.addEventListener('click', () => {
+        handleCheck('name')
     })
 
     updateInfo();
