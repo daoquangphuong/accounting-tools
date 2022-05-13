@@ -15,9 +15,7 @@ const normalizeKho = data => {
       return i;
     })
     .map(i => ({
-      qc1: i.qc1 || 0,
-      qc2: i.qc2 || 0,
-      qc3: i.qc3 || 0,
+      t: i.t || 0,
       td: i.td === '-' ? 0 : i.td || 0,
       n: i.n === '-' ? 0 : i.n || 0,
       x: i.x === '-' ? 0 : i.x || 0,
@@ -25,11 +23,9 @@ const normalizeKho = data => {
       full: i,
     }))
     .map(i => {
-      const qc = [i.qc1, i.qc2, i.qc3].filter(Boolean);
-      qc.sort((a, b) => a - b);
       return {
         ...i,
-        key: qc.join('x'),
+        key: i.t.toLowerCase(),
       };
     });
 };
@@ -48,7 +44,7 @@ const normalizeKt = data => {
       return i;
     })
     .map(i => ({
-      qc: i.qc || '',
+      t: i.t || '',
       td: i.td === '-' ? 0 : i.td || 0,
       n: i.n === '-' ? 0 : i.n || 0,
       x: i.x === '-' ? 0 : i.x || 0,
@@ -56,12 +52,9 @@ const normalizeKt = data => {
       full: i,
     }))
     .map(i => {
-      const qcMatch = i.qc.match(/([\d.]+)x([\d.]+)(?:x([\d.]+))?/) || [];
-      const qc = [qcMatch[1], qcMatch[2], qcMatch[3]].filter(Boolean);
-      qc.sort((a, b) => a - b);
       return {
         ...i,
-        key: qc.join('x'),
+        key: i.t.toLowerCase(),
       };
     });
 };
