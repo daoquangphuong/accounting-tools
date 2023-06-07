@@ -5,12 +5,15 @@ function round2Digits(number) {
   return Math.round(Math.round(number * 1000) / 10) / 100;
 }
 
-const normalizeKho = data => {
+const normalizeKho = (data, { khoFont }) => {
   return data
     .map(i => {
       Object.keys(i).forEach(key => {
-        i[key] = i[key] && i[key].trim ? i[key].trim() : i[key];
-        const newKey = key.trim();
+        i[key] =
+          i[key] && i[key].trim
+            ? font.tcvn3ToUnicode(i[key], khoFont).trim()
+            : i[key];
+        const newKey = font.tcvn3ToUnicode(key, khoFont).trim();
         const value = i[key];
         delete i[key];
         i[newKey] = value;
@@ -39,13 +42,15 @@ const normalizeKho = data => {
     });
 };
 
-const normalizeKt = data => {
+const normalizeKt = (data, { ktFont }) => {
   return data
     .map(i => {
       Object.keys(i).forEach(key => {
         i[key] =
-          i[key] && i[key].trim ? font.tcvn3ToUnicode(i[key]).trim() : i[key];
-        const newKey = font.tcvn3ToUnicode(key).trim();
+          i[key] && i[key].trim
+            ? font.tcvn3ToUnicode(i[key], ktFont).trim()
+            : i[key];
+        const newKey = font.tcvn3ToUnicode(key, ktFont).trim();
         const value = i[key];
         delete i[key];
         i[newKey] =
@@ -125,17 +130,17 @@ const renderTable = data => {
   `;
 };
 
-const compare = async () => {
+const compare = async ({ khoFont, ktFont } = {}) => {
   if (!fileMap.kho) {
     throw new Error('Not found Kho Data');
   }
   if (!fileMap.kt) {
     throw new Error('Not found Kt Data');
   }
-  const kho = normalizeKho(fileMap.kho);
+  const kho = normalizeKho(fileMap.kho, { khoFont });
   const inKho = kho.filter(i => i.td || i.n || i.x || i.tc);
   // const outKho = kho.filter(i => !(i.td || i.n || i.x || i.tc));
-  const kt = normalizeKt(fileMap.kt);
+  const kt = normalizeKt(fileMap.kt, { ktFont });
   const inKt = kt.filter(i => i.td || i.n || i.x || i.tc);
   // const outKt = kt.filter(i => !(i.td || i.n || i.x || i.tc));
   const khoMap = groupByKey(inKho);

@@ -161,7 +161,10 @@ const tcvn3Map = tcvn3Pos.reduce((map, item, index) => {
   return map;
 }, {});
 
-const tcvn3ToUnicode = text => {
+const tcvn3ToUnicode = (text, convert = true) => {
+  if (!convert) {
+    return text || '';
+  }
   return (text || '')
     .split('')
     .map(char => {
