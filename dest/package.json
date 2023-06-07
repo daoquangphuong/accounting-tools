@@ -1,6 +1,6 @@
 {
   "name": "accounting-tools",
-  "version": "1.0.7",
+  "version": "1.0.8",
   "private": true,
   "engines": {
     "node": "12.22.7",
