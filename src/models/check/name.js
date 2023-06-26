@@ -91,10 +91,12 @@ const groupByKey = data => {
   }, {});
 };
 
-const renderTable = data => {
+const renderTable = (data, { showWrong = false, headerNameMap = {} } = {}) => {
   if (!data.length) {
     return `<div>NO DATA</div>`;
   }
+
+  const wrongMap = {};
 
   const headerMap = data.reduce((map, item) => {
     Object.keys(item).forEach(k => {
@@ -104,19 +106,35 @@ const renderTable = data => {
   }, {});
 
   const header = Object.keys(headerMap);
+  header.sort((a, b) => {
+    return (
+      Object.keys(headerNameMap).indexOf(a) -
+      Object.keys(headerNameMap).indexOf(b)
+    );
+  });
+
+  const headerNames = header.map(i => headerNameMap[i] || i);
 
   return `
 <table>
     <tr>
-        ${header.map(i => `<th>${i}</th>`).join('\n')}
+        ${headerNames.map(i => `<th>${i}</th>`).join('\n')}
     </tr>
     ${data
-      .map(
-        d =>
-          `<tr>${header
-            .map(i => `<td>${d[i] === undefined ? '' : d[i]}</td>`)
-            .join('\n')}</tr>`
-      )
+      .map(d => {
+        wrongMap[d.key] = wrongMap[d.key] || d;
+        const preRow = wrongMap[d.key];
+        return `<tr>${header
+          .map(i => {
+            const isWrongValue = (preRow[i] || `0`) !== (d[i] || `0`);
+            return `<td ${
+              showWrong && showWrong[i] && isWrongValue
+                ? `style="color: red"`
+                : ''
+            }>${d[i] === undefined ? '' : d[i]}</td>`;
+          })
+          .join('\n')}</tr>`;
+      })
       .join('\n')}
 </table>
   `;
@@ -233,10 +251,63 @@ const compare = async ({ khoFont, ktFont } = {}) => {
   }, []);
 
   return {
-    khoMissingTable: renderTable(khoMissingTable),
-    ktMissingTable: renderTable(ktMissingTable),
-    wrongTable: renderTable(wrongTable),
-    rightTable: renderTable(rightTable),
+    khoMissingTable: renderTable(khoMissingTable, {
+      headerNameMap: {
+        1: 'Dòng',
+        t: 'Tên',
+        td: 'Tồn Đầu',
+        n: 'Nhập',
+        x: 'Xuất',
+        tc: 'Tồn Cuối',
+      },
+    }),
+    ktMissingTable: renderTable(ktMissingTable, {
+      headerNameMap: {
+        __EMPTY: 'Dòng',
+        t: 'Tên',
+        __EMPTY_1: 'Đơn vị',
+        td: 'Tồn Đầu',
+        n: 'Nhập',
+        x: 'Xuất',
+        tc: 'Tồn Cuối',
+      },
+    }),
+    wrongTable: renderTable(
+      wrongTable.map(i => {
+        if ('__EMPTY' in i) {
+          i[1] = i.__EMPTY;
+          delete i.__EMPTY;
+        }
+        return i;
+      }),
+      {
+        showWrong: { td: true, tc: true, n: true, x: true },
+        headerNameMap: {
+          from: 'Nguồn',
+          1: 'Dòng',
+          key: 'Mẫu so sánh',
+          t: 'Tên',
+          __EMPTY_1: 'Đơn vị',
+          td: 'Tồn Đầu',
+          n: 'Nhập',
+          x: 'Xuất',
+          tc: 'Tồn Cuối',
+        },
+      }
+    ),
+    rightTable: renderTable(rightTable, {
+      headerNameMap: {
+        1: 'Dòng KT',
+        __EMPTY: 'Dòng KHO',
+        from: 'Nguồn',
+        t: 'Tên',
+        __EMPTY_1: 'Đơn vị',
+        td: 'Tồn Đầu',
+        n: 'Nhập',
+        x: 'Xuất',
+        tc: 'Tồn Cuối',
+      },
+    }),
   };
 };
 
