@@ -6,7 +6,7 @@ const error = require('../middleware/error');
 const json = require('../middleware/json');
 const update = require('../middleware/update');
 const upload = require('../middleware/upload');
-const compare = require('../middleware/compare');
+const task = require('../middleware/task');
 
 const router = express.Router();
 
@@ -28,7 +28,7 @@ router.use(json('after'));
 
 router.post('/post/update', update);
 
-router.post('/post/compare', compare);
+router.post('/post/task', task);
 
 // error handler
 router.use(error);

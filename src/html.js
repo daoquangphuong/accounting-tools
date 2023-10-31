@@ -51,6 +51,15 @@ tr td:first-child {
     padding: 20px;
 }
 
+.dh-name {
+    padding: 2px 10px;
+    border-radius: 5px;
+    background: #008ccc;
+    margin: 2px;
+    display: inline-block;
+    color: white;
+}
+
 /* The container */
 .container {
   display: block;
@@ -168,54 +177,51 @@ tr td:first-child {
 
     </div>
 </div>
+<div class="app">
+    <div class="info">
+        <div>
+            <input id="upload-multi" style="display: none" type="file" multiple accept=".xls, .xlsx"/>
+            <button id="btn-dh" class="btn">Nhập Đơn hàng</button>
+        </div>
+        <br/>
+<!--        <div>-->
+<!--            <div>-->
+<!--                <label class="container">Convert FONT cho Kho-->
+<!--                    <input id="kho-font" type="checkbox">-->
+<!--                    <span class="checkmark"></span>-->
+<!--                </label>-->
+<!--                <label class="container">Convert FONT cho Kế Toán-->
+<!--                    <input id="kt-font" type="checkbox">-->
+<!--                    <span class="checkmark"></span>-->
+<!--                </label>-->
+<!--            </div>-->
+<!--        </div>-->
+        <div>
+            <button id="btn-tk-nhap" class="btn">Thống Kê Nhập</button>
+            <button id="btn-tk-xuat" class="btn">Thống Kê Xuất</button>
+        </div>
+    </div>
+    <br>
+    <div class="info">
+        <div>Đơn hàng: <span id="dh-file-name"></span></div>
+    </div>
+
+    <h3>Sơn</h3>
+    <div id="son">
+
+    </div>
+
+    <h3>Đính Kèm</h3>
+    <div id="dinh-kem">
+
+    </div>
+
+    <h3>Đóng Gói</h3>
+    <div id="dong-goi">
+
+    </div>
+</div>
 <script>
-    const $upload = document.getElementById('upload');
-    const $btnKho = document.getElementById('btn-kho');
-    const $btnKt = document.getElementById('btn-kt');
-    const $btnCheckQc = document.getElementById('btn-check-qc');
-    const $btnCheckName = document.getElementById('btn-check-name');
-
-    const fileMap = new Object({
-        kho: null,
-        kt: null,
-    });
-    let uploadType;
-
-    const updateInfo = () => {
-        const $khoName = document.getElementById('kho-file-name');
-        const $ktName = document.getElementById('kt-file-name');
-        if(fileMap.kho){
-            $khoName.textContent = fileMap.kho.name;
-        }
-         if(fileMap.kt){
-            $ktName.textContent = fileMap.kt.name;
-        }
-        $btnCheckQc.disabled = !(fileMap.kho && fileMap.kt);
-        $btnCheckName.disabled = !(fileMap.kho && fileMap.kt);
-    }
-
-    $upload.addEventListener('change', (event) => {
-      const { files } = event.target;
-      if (!files || !files.length) {
-        return;
-      }
-      const fileList = Array.from(files);
-      const file = fileList[0];
-      fileMap[uploadType] = file;
-      event.target.value = '';
-      updateInfo();
-    })
-
-    $btnKho.addEventListener('click', () => {
-        uploadType = 'kho';
-        $upload.click();
-    })
-
-    $btnKt.addEventListener('click', () => {
-        uploadType = 'kt';
-        $upload.click();
-    })
-
     const myFetch = async (url, opts) => {
         const res = await fetch(url, opts);
         const jsonData = await res.json();
@@ -228,53 +234,205 @@ tr td:first-child {
         return jsonData.data;
     }
 
-    const handleCheck = async (type = 'qc') => {
-        try{
-            const $khoMissing = document.getElementById('kho-missing');
-            const $ktMissing = document.getElementById('kt-missing');
-            const $wrong = document.getElementById('wrong');
+    (function APP_1() {
+      const $upload = document.getElementById('upload');
+      const $btnKho = document.getElementById('btn-kho');
+      const $btnKt = document.getElementById('btn-kt');
+      const $btnCheckQc = document.getElementById('btn-check-qc');
+      const $btnCheckName = document.getElementById('btn-check-name');
 
-            $khoMissing.innerHTML = '';
-            $ktMissing.innerHTML = '';
-            $wrong.innerHTML = '';
+      const fileMap = new Object({
+          kho: null,
+          kt: null,
+      });
+      let uploadType;
 
-            await Promise.all(['kho', 'kt'].map(name => {
-                return myFetch('/accounting/post/upload?uploadType=' + name, {
-                  method: 'POST',
-                  body: fileMap[name],
-                })
-            }));
+      const updateInfo = () => {
+          const $khoName = document.getElementById('kho-file-name');
+          const $ktName = document.getElementById('kt-file-name');
+          if(fileMap.kho){
+              $khoName.textContent = fileMap.kho.name;
+          }
+           if(fileMap.kt){
+              $ktName.textContent = fileMap.kt.name;
+          }
+          $btnCheckQc.disabled = !(fileMap.kho && fileMap.kt);
+          $btnCheckName.disabled = !(fileMap.kho && fileMap.kt);
+      }
 
-            const $khoFont = document.getElementById('kho-font');
-            const $ktFont = document.getElementById('kt-font');
-
-            const query = [
-                'compareType='+type,
-                 $khoFont.checked ? 'khoFont=true' : '',
-                  $ktFont.checked ? 'ktFont=true' : ''
-            ].filter(Boolean).join('&')
-
-            const res = await myFetch('/accounting/post/compare?' + query, {
-                method: 'POST',
-            })
-            const {khoMissingTable, ktMissingTable, wrongTable} = res;
-            $khoMissing.innerHTML = khoMissingTable;
-            $ktMissing.innerHTML = ktMissingTable;
-            $wrong.innerHTML = wrongTable;
-        } catch (err){
-            window.alert(err.message);
+      $upload.addEventListener('change', (event) => {
+        const { files } = event.target;
+        if (!files || !files.length) {
+          return;
         }
-    }
+        const fileList = Array.from(files);
+        const file = fileList[0];
+        fileMap[uploadType] = file;
+        event.target.value = '';
+        updateInfo();
+      })
 
-    $btnCheckQc.addEventListener('click', () => {
-        handleCheck('qc')
-    })
+      $btnKho.addEventListener('click', () => {
+          uploadType = 'kho';
+          $upload.click();
+      })
 
-    $btnCheckName.addEventListener('click', () => {
-        handleCheck('name')
-    })
+      $btnKt.addEventListener('click', () => {
+          uploadType = 'kt';
+          $upload.click();
+      })
 
-    updateInfo();
+      const handleCheck = async (type = 'qc') => {
+          try{
+              $btnCheckQc.disabled = true;
+              $btnCheckName.disabled = true;
+              const $khoMissing = document.getElementById('kho-missing');
+              const $ktMissing = document.getElementById('kt-missing');
+              const $wrong = document.getElementById('wrong');
+
+              $khoMissing.innerHTML = '';
+              $ktMissing.innerHTML = '';
+              $wrong.innerHTML = '';
+
+              await Promise.all(['kho', 'kt'].map(name => {
+                  return myFetch('/accounting/post/upload?app=1&uploadType=' + name, {
+                    method: 'POST',
+                    body: fileMap[name],
+                  })
+              }));
+
+              const $khoFont = document.getElementById('kho-font');
+              const $ktFont = document.getElementById('kt-font');
+
+              const query = [
+                  'app=1',
+                  'type='+type,
+                   $khoFont.checked ? 'khoFont=true' : '',
+                    $ktFont.checked ? 'ktFont=true' : ''
+              ].filter(Boolean).join('&')
+
+              const res = await myFetch('/accounting/post/task?' + query, {
+                  method: 'POST',
+              })
+              const {khoMissingTable, ktMissingTable, wrongTable} = res;
+              $khoMissing.innerHTML = khoMissingTable;
+              $ktMissing.innerHTML = ktMissingTable;
+              $wrong.innerHTML = wrongTable;
+          } catch (err){
+              window.alert(err.message);
+          } finally {
+            $btnCheckQc.disabled = false;
+            $btnCheckName.disabled = false;
+          }
+      }
+
+      $btnCheckQc.addEventListener('click', () => {
+          handleCheck('qc')
+      })
+
+      $btnCheckName.addEventListener('click', () => {
+          handleCheck('name')
+      })
+
+      updateInfo();
+    })();
+
+    (function APP_2(){
+      const $upload = document.getElementById('upload-multi');
+      const $btnDh = document.getElementById('btn-dh');
+      const $btnTkXuat = document.getElementById('btn-tk-xuat');
+      const $btnTkNhap = document.getElementById('btn-tk-nhap');
+
+      const fileMap = new Object({
+          dh: null,
+      });
+      let uploadType;
+
+      $upload.addEventListener('change', (event) => {
+        const { files } = event.target;
+        if (!files || !files.length) {
+          return;
+        }
+        const fileList = Array.from(files);
+        fileList.sort((a, b) => (a.name || '').localeCompare(b.name || ''))
+        const file = fileList;
+        fileMap[uploadType] = file;
+        event.target.value = '';
+        updateInfo();
+      })
+
+      $btnDh.addEventListener('click', () => {
+          uploadType = 'dh';
+          $upload.click();
+      })
+
+      const updateInfo = () => {
+          const $dhName = document.getElementById('dh-file-name');
+          if(fileMap.dh){
+            $dhName.innerHTML = fileMap.dh.map(i => '<span class="dh-name">' + i.name + '</span>').join("");
+          }
+          $btnTkXuat.disabled = !(fileMap.dh);
+          $btnTkNhap.disabled = !(fileMap.dh);
+      }
+
+      const handleThongKe = async (type = 'xuat') => {
+          try{
+              $btnTkXuat.disabled = true;
+              $btnTkNhap.disabled = true;
+              const $son = document.getElementById('son');
+              const $dinhKem = document.getElementById('dinh-kem');
+              const $dongGoi = document.getElementById('dong-goi');
+
+              $son.innerHTML = '';
+              $dinhKem.innerHTML = '';
+              $dongGoi.innerHTML = '';
+
+              await myFetch('/accounting/post/upload?app=2&newSession=true', {
+                method: 'POST',
+              })
+
+              await Promise.all(fileMap.dh.map(file => {
+                return myFetch('/accounting/post/upload?app=2&fileName=' + file.name, {
+                  method: 'POST',
+                  body: file,
+                })
+              }));
+
+              // const $khoFont = document.getElementById('kho-font');
+              // const $ktFont = document.getElementById('kt-font');
+
+              const query = [
+                  'app=2',
+                  'type='+type,
+                   // $khoFont.checked ? 'khoFont=true' : '',
+                   //  $ktFont.checked ? 'ktFont=true' : ''
+              ].filter(Boolean).join('&')
+
+              const res = await myFetch('/accounting/post/task?' + query, {
+                  method: 'POST',
+              })
+              const {sonTable, dinhKemTable, dongGoiTable} = res;
+              $son.innerHTML = sonTable;
+              $dinhKem.innerHTML = dinhKemTable;
+              $dongGoi.innerHTML = dongGoiTable;
+          } catch (err){
+              window.alert(err.message);
+          } finally {
+            $btnTkXuat.disabled = false;
+            $btnTkNhap.disabled = false;
+          }
+      }
+
+      $btnTkXuat.addEventListener('click', () => {
+          handleThongKe('xuat')
+      })
+
+      $btnTkNhap.addEventListener('click', () => {
+          handleThongKe('nhap')
+      })
+
+      updateInfo();
+    })();
 </script>
 </body>
 </html>
