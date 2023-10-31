@@ -228,8 +228,9 @@ const analytic = async () => {
         } catch (e) {
           console.error(e);
           item.ERROR = `<div title="${e.stack}">${e.message}</div>`;
+          item.FILENAME = `<div title="${key}">${item.FILENAME}</div>`;
           map[key].errorItems.push(item);
-          errorTable.push({ key, ...item });
+          errorTable.push(item);
         }
       });
     });
