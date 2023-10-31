@@ -204,7 +204,7 @@ const analytic = async () => {
           return;
         }
         const key = [item.TYPE, item.TVT, item.MVT, item.QC]
-          .map(i => i.toLowerCase())
+          .map(i => i.toLowerCase().replace(/\s/g, ''))
           .join(' |&| ');
         map[key] = map[key] || {
           key,
