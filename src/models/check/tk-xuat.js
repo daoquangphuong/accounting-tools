@@ -197,6 +197,7 @@ const analytic = async () => {
   }
   const data = workbooks.map(workbook => parseData(workbook));
   const map = {};
+  const errorTable = [];
   data.forEach(dayData => {
     dayData.forEach(items => {
       items.forEach(item => {
@@ -218,13 +219,17 @@ const analytic = async () => {
         };
         try {
           const value = Math.floor(item.VALUE.replace(/,/g, '') * 1000);
+          if (!value) {
+            throw new Error('Not found Value');
+          }
           map[key]._total += value;
           map[key].total = (map[key]._total / 1000).toString();
           map[key].successItems.push(item);
         } catch (e) {
           console.error(e);
-          item.e.error = e;
+          item.ERROR = `<div title="${e.stack}">${e.message}</div>`;
           map[key].errorItems.push(item);
+          errorTable.push({ key, ...item });
         }
       });
     });
@@ -287,6 +292,19 @@ const analytic = async () => {
         MVT: 'Mã Vật Tư',
         QC: 'Quy Cách',
         total: 'Xuất',
+      },
+    }),
+    errorTable: renderTable(errorTable, {
+      headerNameMap: {
+        FILENAME: 'File Exel',
+        NAME: 'Sheet Name',
+        TYPE: 'Loại Đơn Hàng',
+        STT: 'STT',
+        TVT: 'Tên Vật Tư',
+        MVT: 'Mã Vật Tư',
+        QC: 'Quy Cách',
+        VALUE: 'Xuất',
+        ERROR: 'Thông Tin Lỗi',
       },
     }),
   };

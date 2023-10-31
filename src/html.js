@@ -220,6 +220,11 @@ tr td:first-child {
     <div id="dong-goi">
 
     </div>
+
+    <h3>Đơn Bị Lỗi</h3>
+    <div id="error">
+
+    </div>
 </div>
 <script>
     const myFetch = async (url, opts) => {
@@ -382,10 +387,12 @@ tr td:first-child {
               const $son = document.getElementById('son');
               const $dinhKem = document.getElementById('dinh-kem');
               const $dongGoi = document.getElementById('dong-goi');
+              const $error = document.getElementById('error');
 
               $son.innerHTML = '';
               $dinhKem.innerHTML = '';
               $dongGoi.innerHTML = '';
+              $error.innerHTML = '';
 
               await myFetch('/accounting/post/upload?app=2&newSession=true', {
                 method: 'POST',
@@ -411,10 +418,11 @@ tr td:first-child {
               const res = await myFetch('/accounting/post/task?' + query, {
                   method: 'POST',
               })
-              const {sonTable, dinhKemTable, dongGoiTable} = res;
+              const {sonTable, dinhKemTable, dongGoiTable, errorTable} = res;
               $son.innerHTML = sonTable;
               $dinhKem.innerHTML = dinhKemTable;
               $dongGoi.innerHTML = dongGoiTable;
+              $error.innerHTML = errorTable;
           } catch (err){
               window.alert(err.message);
           } finally {
