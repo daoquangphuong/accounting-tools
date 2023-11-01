@@ -3,6 +3,19 @@ const fs = require('fs');
 const path = require('path');
 const fileMap = require('./fileMap');
 
+const headers = [
+  '__EMPTY',
+  '__EMPTY_1',
+  '__EMPTY_2',
+  '__EMPTY_3',
+  '__EMPTY_4',
+  '__EMPTY_5',
+  '__EMPTY_6',
+  '__EMPTY_7',
+  '__EMPTY_8',
+  '__EMPTY_9',
+];
+
 const readFile = async filePath => {
   const buffer = fs.readFileSync(filePath);
   const workbook = XLSX.read(buffer, { type: 'buffer' });
@@ -10,18 +23,7 @@ const readFile = async filePath => {
     const worksheet = workbook.Sheets[sheetName];
     const jsonData = XLSX.utils.sheet_to_json(worksheet, {
       raw: false,
-      header: [
-        '__EMPTY',
-        '__EMPTY_1',
-        '__EMPTY_2',
-        '__EMPTY_3',
-        '__EMPTY_4',
-        '__EMPTY_5',
-        '__EMPTY_6',
-        '__EMPTY_7',
-        '__EMPTY_8',
-        '__EMPTY_9',
-      ],
+      header: headers,
     });
     return {
       fileName: path.basename(filePath),
@@ -48,99 +50,124 @@ const readData = async () => {
 };
 
 const parseData = workbook => {
-  return workbook.map(sheet => {
-    const typeMatch = sheet.name.match(/(SƠN|ĐÍNH KÈM|ĐÓNG GÓI)/i);
-    if (!typeMatch) {
-      console.info('New Sheet:', sheet.name);
-      return null;
-    }
-    const type = typeMatch['1'].toUpperCase();
-    switch (type) {
-      case 'SƠN': {
-        return sheet.data
-          .map(row => {
-            const STT =
-              row.__EMPTY === undefined ||
-              row.__EMPTY === null ||
-              row.__EMPTY === false
-                ? NaN
-                : parseInt(row.__EMPTY.toString().trim(), 10);
-            if (Number.isNaN(STT)) {
-              return null;
-            }
-            const item = {
-              TYPE: type,
-              NAME: sheet.name,
-              FILENAME: sheet.fileName,
-              STT: (row.__EMPTY || '').trim(),
-              TVT: (row.__EMPTY_1 || '').trim(),
-              MVT: (row.__EMPTY_2 || '').trim(),
-              QC: '',
-              VALUE: (row.__EMPTY_6 || '').trim(),
-            };
-            item.KEY = item.TVT || item.MVT;
-            return item;
-          })
-          .filter(Boolean);
+  return workbook
+    .map(sheet => {
+      try {
+        const typeMatch = sheet.name.match(/(SƠN|ĐÍNH KÈM|ĐÓNG GÓI)/i);
+        if (!typeMatch) {
+          console.info('New Sheet:', sheet.name);
+          return null;
+        }
+        const rowContainValueHeader = sheet.data.find(row =>
+          headers.find(
+            header =>
+              row[header] &&
+              row[header].toLowerCase().match(/Tổng\s*SL\s*\/\s*KL/i)
+          )
+        );
+        const valueHeader = headers.find(
+          header =>
+            rowContainValueHeader[header] &&
+            rowContainValueHeader[header]
+              .toLowerCase()
+              .match(/Tổng\s*SL\s*\/\s*KL/i)
+        );
+        const type = typeMatch['1'].toUpperCase();
+
+        if (!valueHeader) {
+          throw new Error('Not found VALUE header');
+        }
+
+        switch (type) {
+          case 'SƠN': {
+            return sheet.data
+              .map(row => {
+                const STT =
+                  row.__EMPTY === undefined ||
+                  row.__EMPTY === null ||
+                  row.__EMPTY === false
+                    ? NaN
+                    : parseInt(row.__EMPTY.toString().trim(), 10);
+                if (Number.isNaN(STT)) {
+                  return null;
+                }
+                const item = {
+                  TYPE: type,
+                  NAME: sheet.name,
+                  FILENAME: sheet.fileName,
+                  STT: (row.__EMPTY || '').trim(),
+                  TVT: (row.__EMPTY_1 || '').trim(),
+                  MVT: (row.__EMPTY_2 || '').trim(),
+                  QC: '',
+                  VALUE: (row[valueHeader] || '').trim(),
+                };
+                item.KEY = item.TVT || item.MVT;
+                return item;
+              })
+              .filter(Boolean);
+          }
+          case 'ĐÍNH KÈM': {
+            return sheet.data
+              .map(row => {
+                const STT =
+                  row.__EMPTY === undefined ||
+                  row.__EMPTY === null ||
+                  row.__EMPTY === false
+                    ? NaN
+                    : parseInt(row.__EMPTY.toString().trim(), 10);
+                if (Number.isNaN(STT)) {
+                  return null;
+                }
+                const item = {
+                  TYPE: type,
+                  NAME: sheet.name,
+                  FILENAME: sheet.fileName,
+                  STT: (row.__EMPTY || '').trim(),
+                  MVT: (row.__EMPTY_1 || '').trim(),
+                  TVT: (row.__EMPTY_2 || '').trim(),
+                  QC: '',
+                  VALUE: (row[valueHeader] || '').trim(),
+                };
+                item.KEY = item.TVT || item.MVT;
+                return item;
+              })
+              .filter(Boolean);
+          }
+          case 'ĐÓNG GÓI': {
+            return sheet.data
+              .map(row => {
+                const STT =
+                  row.__EMPTY === undefined ||
+                  row.__EMPTY === null ||
+                  row.__EMPTY === false
+                    ? NaN
+                    : parseInt(row.__EMPTY.toString().trim(), 10);
+                if (Number.isNaN(STT)) {
+                  return null;
+                }
+                const item = {
+                  TYPE: type,
+                  NAME: sheet.name,
+                  FILENAME: sheet.fileName,
+                  STT: (row.__EMPTY || '').trim(),
+                  MVT: (row.__EMPTY_1 || '').trim(),
+                  TVT: (row.__EMPTY_2 || '').trim(),
+                  QC: (row.__EMPTY_3 || '').trim(),
+                  VALUE: (row[valueHeader] || '').trim(),
+                };
+                return item;
+              })
+              .filter(Boolean);
+          }
+          default:
+            break;
+        }
+        return true;
+      } catch (e) {
+        throw new Error(`[${sheet.fileName}][${sheet.name}]: ${e.message}`);
       }
-      case 'ĐÍNH KÈM': {
-        return sheet.data
-          .map(row => {
-            const STT =
-              row.__EMPTY === undefined ||
-              row.__EMPTY === null ||
-              row.__EMPTY === false
-                ? NaN
-                : parseInt(row.__EMPTY.toString().trim(), 10);
-            if (Number.isNaN(STT)) {
-              return null;
-            }
-            const item = {
-              TYPE: type,
-              NAME: sheet.name,
-              FILENAME: sheet.fileName,
-              STT: (row.__EMPTY || '').trim(),
-              MVT: (row.__EMPTY_1 || '').trim(),
-              TVT: (row.__EMPTY_2 || '').trim(),
-              QC: '',
-              VALUE: (row.__EMPTY_7 || '').trim(),
-            };
-            item.KEY = item.TVT || item.MVT;
-            return item;
-          })
-          .filter(Boolean);
-      }
-      case 'ĐÓNG GÓI': {
-        return sheet.data
-          .map(row => {
-            const STT =
-              row.__EMPTY === undefined ||
-              row.__EMPTY === null ||
-              row.__EMPTY === false
-                ? NaN
-                : parseInt(row.__EMPTY.toString().trim(), 10);
-            if (Number.isNaN(STT)) {
-              return null;
-            }
-            const item = {
-              TYPE: type,
-              NAME: sheet.name,
-              FILENAME: sheet.fileName,
-              STT: (row.__EMPTY || '').trim(),
-              MVT: (row.__EMPTY_1 || '').trim(),
-              TVT: (row.__EMPTY_2 || '').trim(),
-              QC: (row.__EMPTY_3 || '').trim(),
-              VALUE: (row.__EMPTY_7 || '').trim(),
-            };
-            return item;
-          })
-          .filter(Boolean);
-      }
-      default:
-        break;
-    }
-    return true;
-  });
+    })
+    .filter(Boolean);
 };
 
 const renderTable = (data, { showWrong = false, headerNameMap = {} } = {}) => {
