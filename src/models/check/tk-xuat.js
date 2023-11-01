@@ -55,7 +55,7 @@ const parseData = workbook => {
       try {
         const typeMatch = sheet.name.match(/(SƠN|ĐÍNH KÈM|ĐÓNG GÓI)/i);
         if (!typeMatch) {
-          console.info('New Sheet:', sheet.name);
+          // console.info('New Sheet:', sheet.name);
           return null;
         }
         const rowContainValueHeader = sheet.data.find(row =>
