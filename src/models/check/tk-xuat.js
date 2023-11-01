@@ -78,6 +78,7 @@ const parseData = workbook => {
               QC: '',
               VALUE: (row.__EMPTY_6 || '').trim(),
             };
+            item.KEY = item.TVT || item.MVT;
             return item;
           })
           .filter(Boolean);
@@ -99,11 +100,12 @@ const parseData = workbook => {
               NAME: sheet.name,
               FILENAME: sheet.fileName,
               STT: (row.__EMPTY || '').trim(),
-              TVT: (row.__EMPTY_1 || '').trim(),
+              MVT: (row.__EMPTY_1 || '').trim(),
+              TVT: (row.__EMPTY_2 || '').trim(),
               QC: '',
-              MVT: (row.__EMPTY_2 || '').trim(),
               VALUE: (row.__EMPTY_7 || '').trim(),
             };
+            item.KEY = item.TVT || item.MVT;
             return item;
           })
           .filter(Boolean);
@@ -125,8 +127,8 @@ const parseData = workbook => {
               NAME: sheet.name,
               FILENAME: sheet.fileName,
               STT: (row.__EMPTY || '').trim(),
-              TVT: (row.__EMPTY_1 || '').trim(),
-              MVT: (row.__EMPTY_2 || '').trim(),
+              MVT: (row.__EMPTY_1 || '').trim(),
+              TVT: (row.__EMPTY_2 || '').trim(),
               QC: (row.__EMPTY_3 || '').trim(),
               VALUE: (row.__EMPTY_7 || '').trim(),
             };
@@ -204,9 +206,29 @@ const analytic = async () => {
         if (!item.TVT && !item.MVT && !item.QC) {
           return;
         }
-        const key = [item.TYPE, item.TVT, item.MVT, item.QC]
-          .map(i => i.toLowerCase().replace(/\s/g, ''))
-          .join(' |&| ');
+        const keys = [item.TYPE];
+        switch (item.TYPE) {
+          case 'SƠN': {
+            keys.push(item.TVT || item.MVT);
+            break;
+          }
+          case 'ĐÍNH KÈM': {
+            keys.push(item.TVT || item.MVT);
+            break;
+          }
+          case 'ĐÓNG GÓI': {
+            if (item.TVT || item.QC) {
+              keys.push(item.TVT, item.QC);
+            } else {
+              keys.push(item.MVT);
+            }
+            break;
+          }
+          default: {
+            break;
+          }
+        }
+        const key = keys.map(i => i.toLowerCase().replace(/\s/g, '')).join('');
         map[key] = map[key] || {
           key,
           TYPE: item.TYPE,
@@ -226,7 +248,6 @@ const analytic = async () => {
           map[key].total = (map[key]._total / 1000).toString();
           map[key].successItems.push(item);
         } catch (e) {
-          console.error(e);
           item.ERROR = `<div title="${e.stack}">${e.message}</div>`;
           item.FILENAME = `<div title="${key}">${item.FILENAME}</div>`;
           map[key].errorItems.push(item);
@@ -262,12 +283,23 @@ const analytic = async () => {
 
   const normalizeTable = tableData => {
     tableData.sort((a, b) => a.key.localeCompare(b.key));
-    return tableData.map(i => ({
-      TVT: i.TVT,
-      MVT: i.MVT,
-      QC: i.QC,
-      total: i.total,
-    }));
+    return tableData
+      .filter(i => i.total)
+      .map(i => {
+        return {
+          TVT: i.TVT,
+          MVT: i.MVT,
+          QC: i.QC,
+          total: `<div title="${i.successItems
+            .map(
+              child =>
+                `${[child.TVT, child.MVT, child.QC]
+                  .filter(Boolean)
+                  .join(' ')} = ${child.VALUE}`
+            )
+            .join('\n')}">${i.total}</div>`,
+        };
+      });
   };
 
   return {
