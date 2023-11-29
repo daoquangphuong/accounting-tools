@@ -23,7 +23,8 @@
   "scripts": {
     "start": "node --openssl-legacy-provider dest/server.js",
     "build": "node --openssl-legacy-provider tools/build.js && rm -rf ./dest/index.js ./dest/index.js.map",
-    "pkg": "rm -rf ./build && node --openssl-legacy-provider tools/build.js && pkg ./dest/index.js --options no-warnings --out-path ./build && rm -rf ./dest/index.js ./dest/index.js.map"
+    "pkg": "rm -rf ./build && node --openssl-legacy-provider tools/build.js && pkg ./dest/index.js --options no-warnings --out-path ./build && rm -rf ./dest/index.js ./dest/index.js.map && yarn zip",
+    "zip": "cd ./build && zip -j index-linux.zip index-linux && rm -rf index-linux && zip -j index-macos.zip index-macos && rm -rf index-macos && zip -j index-win.exe.zip index-win.exe && rm -rf index-win.exe"
   },
   "author": "",
   "license": "ISC",
