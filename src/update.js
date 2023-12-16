@@ -81,11 +81,16 @@ const checkHasNewVersion = (currentVer, nextVer) => {
   return n.some((v, k) => v > c[k]);
 };
 
+const checkHasServerFile = () => {
+  return fs.existsSync(path.resolve(config.serverFile));
+};
+
 const check = async () => {
   const currentVer = await getCurrentVersion();
   const nextVer = await getNextVersion();
   const hasNewVersion = checkHasNewVersion(currentVer, nextVer);
-  if (!hasNewVersion) {
+  const hasServerFile = checkHasServerFile();
+  if (!hasNewVersion && hasServerFile) {
     return;
   }
   console.info(`Has New Version ${nextVer}`);
