@@ -98,6 +98,11 @@ const check = async () => {
   console.info('Please wait...');
   const folder = await getGitFolder();
   let seq = Promise.resolve();
+  folder.sort((a, b) => {
+    const aP = a === 'package.json';
+    const bP = b === 'package.json';
+    return aP - bP;
+  });
   folder.forEach((fileName, idx) => {
     seq = seq.then(async () => {
       console.info(`${idx + 1}/${folder.length} Updating ${fileName}`);
